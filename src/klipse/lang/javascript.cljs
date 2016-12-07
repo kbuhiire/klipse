@@ -36,13 +36,15 @@
         (try
           (put! c (if (= :ok status)
                     (try
-                      (my-with-redefs [js/console.log (fn[& args]
+                      (set! js/logger (fn[& args]
                                                         (put! c (string/join " "  args))
-                                                        (put! c "\n"))]
+                                                        (put! c "\n")))
+                       (let [exp (dbg (str "(function(console) {" exp "}({log: window.logger}))"))]
 
                                       (-> exp
                                           eval-in-global-scope
-                                          beautify))
+                                          beautify)
+                         "")
                       (catch :default o
                         (str o)))
                     (str "//Cannot load script: " script "\n"
